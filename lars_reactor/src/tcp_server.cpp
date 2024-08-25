@@ -27,6 +27,24 @@ int tcp_server::_curr_conns = 0;
 //保护_curr_conns刻度修改的锁
 pthread_mutex_t tcp_server::_conns_mutex = PTHREAD_MUTEX_INITIALIZER;
 
+//创建链接之后的回调函数
+conn_callback tcp_server::conn_start_cb = NULL;
+void * tcp_server::conn_start_cb_args = NULL;
+
+//销毁链接之前的回调函数
+conn_callback tcp_server::conn_close_cb = NULL;
+void * tcp_server::conn_close_cb_args = NULL;
+
+// ==== 消息分发路由   ===
+msg_router tcp_server::router;
+
+//listen fd 客户端有新链接请求过来的回调函数
+void accept_callback(event_loop *loop, int fd, void *args)
+{
+    tcp_server *server = (tcp_server*)args;
+    server->do_accept();
+}
+
 //server的构造函数
 tcp_server::tcp_server(const char *ip, uint16_t port)
 {
@@ -56,7 +74,6 @@ tcp_server::tcp_server(const char *ip, uint16_t port)
     server_addr.sin_family = AF_INET;
     inet_aton(ip, &server_addr.sin_addr);
     server_addr.sin_port = htons(port);
-
     //2-1可以多次监听，设置REUSE属性
     int op = 1;
     if (setsockopt(_sockfd, SOL_SOCKET, SO_REUSEADDR, &op, sizeof(op)) < 0) {
@@ -70,7 +87,7 @@ tcp_server::tcp_server(const char *ip, uint16_t port)
     }
 
     //4 监听ip端口
-    if (listen(_sockfd, 500) == -1) {
+    if (listen(_sockfd, 5000) == -1) {
         fprintf(stderr, "listen error\n");
         exit(1);
     }
@@ -88,10 +105,24 @@ tcp_server::tcp_server(const char *ip, uint16_t port)
     }
     //===========================================
 
-    //7 注册_socket读事件-->accept处理
+    //7 =============创建线程池=================
+    int thread_cnt = 3;//TODO 从配置文件中读取
+    if (thread_cnt > 0) {
+        _thread_pool = new thread_pool(thread_cnt);
+        if (_thread_pool == NULL) {
+            fprintf(stderr, "tcp_server new thread_pool error\n");
+            exit(1);
+        }
+    }
+
+    //8 注册_socket读事件-->accept处理
     _mainloop->add_io_event(_sockfd, accept_callback, EPOLLIN, this);
 }
 
+void tcp_server::start()
+{
+    _mainloop->event_process();
+}
 
 //新增一个新建的连接
 void tcp_server::increase_conn(int connfd, tcp_conn *conn)
@@ -125,8 +156,8 @@ void tcp_server::do_accept()
     int connfd;    
     while(true) {
         //accept与客户端创建链接
-        printf("begin accept\n");
         connfd = accept(_sockfd, (struct sockaddr*)&_connaddr, &_addrlen);
+        printf("accept connfd = %d",connfd);
         if (connfd == -1) {
             if (errno == EINTR) {
                 fprintf(stderr, "accept errno=EINTR\n");
@@ -157,15 +188,37 @@ void tcp_server::do_accept()
                 close(connfd);
             }
             else {
-                tcp_conn *conn = new tcp_conn(connfd, _mainloop);
-                if (conn == NULL) {
-                    fprintf(stderr, "new tcp_conn error\n");
-                    exit(1);
+                if (_thread_pool != NULL) {
+                    //启动多线程模式 创建链接
+                    //1 选择一个线程来处理
+                    thread_queue<task_msg>* queue = _thread_pool->get_thread();
+                    //2 创建一个新建链接的消息任务
+                    task_msg task;
+                    task.type = task_msg::NEW_CONN;
+                    task.connfd = connfd;
+
+                    //3 添加到消息队列中，让对应的thread进程event_loop处理
+                    queue->send(task);
+                 // =====================================
                 }
-                printf("get new connection succ!\n");
+                else {
+                    //启动单线程模式
+                    tcp_conn *conn = new tcp_conn(connfd, _mainloop);
+                    printf("connection new\n");
+                    if (conn == NULL) {
+                        fprintf(stderr, "new tcp_conn error\n");
+                        exit(1);
+                    }
+                    printf("[tcp_server]: get new connection succ!\n");
+                    break;
+                }
             }
-            // ===========================================
             break;
         }
     }
+}
+
+void tcp_server::add_msg_router(int msgid, msg_callback *cb, void *user_data)
+{
+    router.register_msg_router(msgid,cb,user_data);
 }

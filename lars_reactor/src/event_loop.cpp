@@ -17,12 +17,12 @@ event_loop::event_loop()
 void event_loop::event_process()
 {
     while (true) {
-        io_event_map_it ev_it;
-
+    
         int nfds = epoll_wait(_epfd, _fired_evs, MAXEVENTS, 10);
+
         for (int i = 0; i < nfds; i++) {
             //通过触发的fd找到对应的绑定事件
-            ev_it = _io_evs.find(_fired_evs[i].data.fd);
+            auto ev_it = _io_evs.find(_fired_evs[i].data.fd);
             assert(ev_it != _io_evs.end());
 
             io_event *ev = &(ev_it->second);
@@ -55,6 +55,8 @@ void event_loop::event_process()
             }
 
         }
+        //每次处理完一组epoll_wait触发的事件之后，处理异步任务
+        this->execute_ready_tasks();
     }
 }
 
@@ -72,7 +74,7 @@ void event_loop::add_io_event(int fd, io_callback *proc, int mask, void *args)
     int op;
 
     //1 找到当前fd是否已经有事件
-    io_event_map_it it = _io_evs.find(fd);
+    auto it = _io_evs.find(fd);
     if (it == _io_evs.end()) {
         //2 如果没有操作动作就是ADD
         //没有找到
@@ -128,7 +130,7 @@ void event_loop::del_io_event(int fd)
 void event_loop::del_io_event(int fd, int mask)
 {
     //如果没有该事件，直接返回
-    io_event_map_it it = _io_evs.find(fd);
+    auto it = _io_evs.find(fd);
     if (it == _io_evs.end()) {
         return ;
     }
@@ -148,4 +150,27 @@ void event_loop::del_io_event(int fd, int mask)
         event.data.fd = fd;
         epoll_ctl(_epfd, EPOLL_CTL_MOD, fd, &event);
     }
+}
+
+//添加一个任务task到ready_tasks集合中
+void event_loop::add_task(task_func func, void *args)
+{
+    task_func_pair func_pair(func, args);
+    _ready_tasks.push_back(func_pair);
+}
+
+//执行全部的ready_tasks里面的任务
+void event_loop::execute_ready_tasks()
+{
+    std::vector<task_func_pair>::iterator it;
+
+    for (it = _ready_tasks.begin(); it != _ready_tasks.end(); it++) {
+        task_func func = it->first;//任务回调函数
+        void *args = it->second;//回调函数形参
+
+        //执行任务
+        func(this, args);
+    }
+    //全部执行完毕，清空当前的_ready_tasks
+    _ready_tasks.clear();
 }

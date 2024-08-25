@@ -5,18 +5,20 @@
  *
  * */
 #include <sys/epoll.h>
-#include <ext/hash_map>
+#include <unordered_map>
+#include <unordered_set>
 #include <ext/hash_set>
 #include "event_base.h"
 
 #define MAXEVENTS 10
+//定义异步任务回调函数类型
+typedef void (*task_func)(event_loop *loop, void *args);
 
 // map: fd->io_event 
-typedef __gnu_cxx::hash_map<int, io_event> io_event_map;
-//定义指向上面map类型的迭代器
-typedef __gnu_cxx::hash_map<int, io_event>::iterator io_event_map_it;
+typedef std::unordered_map<int, io_event> io_event_map;
+
 //全部正在监听的fd集合
-typedef __gnu_cxx::hash_set<int> listen_fd_set;
+typedef std::unordered_set<int> listen_fd_set;
 
 class event_loop 
 {
@@ -35,6 +37,17 @@ public:
 
     //删除一个io事件的EPOLLIN/EPOLLOUT
     void del_io_event(int fd, int mask);
+
+    //=== 异步任务task模块需要的方法 ===
+    //添加一个任务task到ready_tasks集合中
+    void add_task(task_func func, void *args);
+    //执行全部的ready_tasks里面的任务
+    void execute_ready_tasks();
+
+    //获取全部监听事件的fd集合
+    void get_listen_fds(listen_fd_set &fds) {
+        fds = listen_fds;
+    }
     
 private:
     int _epfd; //epoll fd
@@ -48,4 +61,7 @@ private:
     //一次性最大处理的事件
     struct epoll_event _fired_evs[MAXEVENTS];
 
+    //需要被执行的task集合
+    typedef std::pair<task_func, void*> task_func_pair;
+    std::vector<task_func_pair> _ready_tasks;
 };

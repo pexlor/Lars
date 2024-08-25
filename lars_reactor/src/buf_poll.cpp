@@ -2,22 +2,23 @@
 #include <assert.h>
 
 
+/*****初始化静态变量*****/
 //单例对象
-//buf_pool * buf_pool::_instance = NULL;
+buf_pool * buf_pool::_instance = NULL;
 
 //用于保证创建单例的init方法只执行一次的锁
 pthread_once_t buf_pool::_once = PTHREAD_ONCE_INIT;
 
-
 //用户保护内存池链表修改的互斥锁
 pthread_mutex_t buf_pool::_mutex = PTHREAD_MUTEX_INITIALIZER;
+/*****初始化静态变量*****/
 
 //构造函数 主要是预先开辟一定量的空间
 //这里buf_pool是一个hash，每个key都是不同空间容量
 //对应的value是一个io_buf集合的链表
 buf_pool::buf_pool():_total_mem(0)
 {
-    io_buf *prev; 
+    io_buf *prev; //虚拟链表节点，方便操作
     
     //----> 开辟4K buf 内存池
     _pool[m4K] = new io_buf(m4K);
@@ -59,8 +60,6 @@ buf_pool::buf_pool():_total_mem(0)
     }
     _total_mem += 16 * 1000;
 
-
-
     //----> 开辟64K buf 内存池
     _pool[m64K] = new io_buf(m64K);
     if (_pool[m64K] == NULL) {
@@ -80,7 +79,6 @@ buf_pool::buf_pool():_total_mem(0)
     }
     _total_mem += 64 * 500;
 
-
     //----> 开辟256K buf 内存池
     _pool[m256K] = new io_buf(m256K);
     if (_pool[m256K] == NULL) {
@@ -99,7 +97,6 @@ buf_pool::buf_pool():_total_mem(0)
         prev = prev->next;
     }
     _total_mem += 256 * 200;
-
 
     //----> 开辟1M buf 内存池
     _pool[m1M] = new io_buf(m1M);
@@ -161,7 +158,6 @@ buf_pool::buf_pool():_total_mem(0)
     }
     _total_mem += 8192 * 10;
 }
-
 
 //开辟一个io_buf
 //1 如果上层需要N个字节的大小的空间，找到与N最接近的buf hash组，取出，

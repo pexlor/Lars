@@ -57,7 +57,7 @@ void io_buf::clean()
 
 void io_buf::adjust()
 {
-    if(head != 0 && length !=0){
+    if(head != 0){
         memmove(data,data+head,length);
         head = 0;
     }

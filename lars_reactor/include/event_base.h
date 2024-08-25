@@ -1,4 +1,5 @@
 #pragma once
+#include <functional>
 /*
  * 定义一些IO复用机制或者其他异常触发机制的事件封装
  *
@@ -14,9 +15,8 @@ typedef void io_callback(event_loop *loop, int fd, void *args);
 struct io_event 
 {
     io_event():read_callback(nullptr),write_callback(nullptr),rcb_args(nullptr),wcb_args(nullptr) {}
-
     int mask; //EPOLLIN EPOLLOUT
-    io_callback *read_callback; //EPOLLIN事件 触发的回调 
+    io_callback *read_callback; //EPOLLIN事件 触发的回调
     io_callback *write_callback;//EPOLLOUT事件 触发的回调
     void *rcb_args; //read_callback的回调函数参数
     void *wcb_args; //write_callback的回调函数参数

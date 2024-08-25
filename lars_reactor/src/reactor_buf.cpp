@@ -92,7 +92,6 @@ int input_buf::read_data(int fd)
         }
         _buf->length += already_read;
     }
-
     return already_read;
 }
 

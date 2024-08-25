@@ -1,16 +1,17 @@
 #pragma once
-
 #include <unordered_map>
 #include "io_buf.h"
 
-typedef std::unordered_map<int, io_buf*> pool_t;
+/**
+ * @param 内存池类
+*/
 
 enum MEM_CAP {
-    m4K     = 4096,
+    m4K     = 4096, //1024*4
     m16K    = 16384,
     m64K    = 65536,
     m256K   = 262144,
-    m1M     = 1048576,
+    m1M     = 1048576,//1024*1024*1
     m4M     = 4194304,
     m8M     = 8388608
 };
@@ -21,7 +22,7 @@ enum MEM_CAP {
 
 /*
  *  定义buf内存池
- *  设计为单例
+ *  设计为单例模式
  * */
 class buf_pool 
 {
@@ -43,19 +44,18 @@ public:
     io_buf *alloc_buf(int N);
     io_buf *alloc_buf() { return alloc_buf(m4K); }
 
-
     //重置一个io_buf
     void revert(io_buf *buffer);
 
 private:
     buf_pool();
 
-    //禁用拷贝构造
+    //禁用拷贝构造和赋值操作
     buf_pool(const buf_pool&) = delete;
     const buf_pool& operator=(const buf_pool&) = delete;
 
     //所有buffer的一个map集合句柄
-    pool_t _pool;
+    std::unordered_map<int, io_buf*>  _pool;
 
     //总buffer池的内存大小 单位为KB
     uint64_t _total_mem;

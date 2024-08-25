@@ -6,7 +6,7 @@
 #include <netinet/in.h>
 #include <netinet/tcp.h>
 #include <string.h>
-
+#include "tcp_server.h"
 #include "tcp_conn.h"
 #include "message.h"
 /*
@@ -77,22 +77,32 @@ tcp_conn::tcp_conn(int connfd, event_loop *loop)
     int op = 1;
     setsockopt(_connfd, IPPROTO_TCP, TCP_NODELAY, &op, sizeof(op));//need netinet/in.h netinet/tcp.h
 
+     //2.5 如果用户注册了链接建立Hook 则调用
+    if (tcp_server::conn_start_cb) {
+        tcp_server::conn_start_cb(this, tcp_server::conn_start_cb_args);
+    }
+
     //3. 将该链接的读事件让event_loop监控 
     _loop->add_io_event(_connfd, conn_rd_callback, EPOLLIN, this);
+    
+    //4 将该链接集成到对应的tcp_server中
+    tcp_server::increase_conn(_connfd, this);
 }
 
 tcp_conn::~tcp_conn()
 {
+    printf("close connection : %d",_connfd);
     clean_conn();
 }
 
 void tcp_conn::do_read()
 {
     int ret = ibuf.read_data(_connfd);
+
     if(ret == -1){
         fprintf(stderr, "read data from socket\n");
         this->clean_conn();
-        return ;
+        return;
     }
     else if(ret == 0){
         //对端正常关闭
@@ -123,10 +133,11 @@ void tcp_conn::do_read()
         ibuf.pop(MESSAGE_HEAD_LEN);
         
         //处理ibuf.data()业务数据
-        printf("read data: %s\n", ibuf.data());
+        //printf("read data: %s\n", ibuf.data());
 
+        tcp_server::router.call(head.msgid, head.msglen, ibuf.data(), this);
         //回显业务
-        callback_busi(ibuf.data(), head.msglen, head.msgid, NULL, this);
+        //callback_busi(ibuf.data(), head.msglen, head.msgid, NULL, this);
 
         //消息体处理完了,往后便宜msglen长度
         ibuf.pop(head.msglen);
@@ -134,7 +145,7 @@ void tcp_conn::do_read()
 
     ibuf.adjust();
     
-    return ;
+    return;
 }
 
 //处理写业务
@@ -172,7 +183,7 @@ void tcp_conn::clean_conn()
 {
     //链接清理工作
     //1 将该链接从tcp_server摘除掉    
-    //TODO 
+    tcp_server::decrease_conn(_connfd);
     //2 将该链接从event_loop中摘除
     _loop->del_io_event(_connfd);
     //3 buf清空
@@ -187,8 +198,8 @@ void tcp_conn::clean_conn()
 //发送消息的方法
 int tcp_conn::send_message(const char *data, int msglen, int msgid)
 {
-    printf("server send_message: %s:%d, msgid = %d\n", data, msglen, msgid);
-    bool active_epollout = false; 
+    //printf("server send_message: %s:%d, msgid = %d\n", data, msglen, msgid);
+    bool active_epollout = false;
     if(obuf.length() == 0) {
         //如果现在已经数据都发送完了，那么是一定要激活写事件的
         //如果有数据，说明数据还没有完全写完到对端，那么没必要再激活等写完再激活

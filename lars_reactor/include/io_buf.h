@@ -29,7 +29,7 @@ public:
     int head;
     //缓存地址
     char *data;
-private:
+    
     ~io_buf();
 };
 
