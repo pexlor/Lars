@@ -26,7 +26,7 @@ void busi(const char *data, uint32_t len, int msgid, net_connection  *conn, void
     long current_time = time(NULL);
     if (current_time - qps->last_time >= 1) {
         //如果当前时间比最后记录时间大于1秒，那么我们进行记录
-        printf("---> qps = %d <----\n", qps->succ_cnt);
+        printf("---> qps = %d <---- time = %d\n", qps->succ_cnt,current_time - qps->last_time);
         qps->last_time = current_time;//记录最后时间
         qps->succ_cnt = 0;//清空成功次数
     }

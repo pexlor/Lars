@@ -46,7 +46,7 @@ void accept_callback(event_loop *loop, int fd, void *args)
 }
 
 //server的构造函数
-tcp_server::tcp_server(const char *ip, uint16_t port)
+tcp_server::tcp_server(const char *ip, uint16_t port,int thread_cnt)
 {
     bzero(&_connaddr, sizeof(_connaddr));
     
@@ -103,10 +103,8 @@ tcp_server::tcp_server(const char *ip, uint16_t port)
         fprintf(stderr, "new conns[%d] error\n", _max_conns);
         exit(1);
     }
-    //===========================================
-
+    
     //7 =============创建线程池=================
-    int thread_cnt = 3;//TODO 从配置文件中读取
     if (thread_cnt > 0) {
         _thread_pool = new thread_pool(thread_cnt);
         if (_thread_pool == NULL) {

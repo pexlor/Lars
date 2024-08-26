@@ -10,7 +10,7 @@ class tcp_server
 { 
 public: 
     //server的构造函数
-    tcp_server(const char *ip, uint16_t port); 
+    tcp_server(const char *ip, uint16_t port,int thread_cnt = 2); 
 
     //开始提供创建链接服务
     void do_accept();

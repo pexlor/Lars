@@ -13,7 +13,6 @@
 void read_callback(event_loop *loop, int fd, void *args)
 {
     udp_server *server = (udp_server*)args;
-
     //处理业务函数
     server->do_read();
 }
@@ -70,7 +69,7 @@ udp_server::udp_server(event_loop *loop, const char *ip, uint16_t port)
         perror("create udp socket");
         exit(1);
     }
-
+    
     //3 设置服务ip+port
     struct sockaddr_in servaddr;
     bzero(&servaddr, sizeof(servaddr));
