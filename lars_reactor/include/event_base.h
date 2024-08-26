@@ -18,6 +18,8 @@ struct io_event
     int mask; //EPOLLIN EPOLLOUT
     io_callback *read_callback; //EPOLLIN事件 触发的回调
     io_callback *write_callback;//EPOLLOUT事件 触发的回调
+    io_callback *close_callback;//关闭事件
     void *rcb_args; //read_callback的回调函数参数
     void *wcb_args; //write_callback的回调函数参数
+    void *ccb_args; 
 };

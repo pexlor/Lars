@@ -45,7 +45,7 @@ void connection_start(net_connection *client, void *args)
     client->send_message(requestString.c_str(), requestString.size(), msgid);
 }
 
-void *thread_main(void *args)
+void *client_thread_main(void *args)
 {
     //给服务端发包
      
@@ -80,7 +80,7 @@ int main(int argc, char **argv)
     tids = new pthread_t[thread_num];
 
     for (int i = 0; i < thread_num; i++) {
-        pthread_create(&tids[i], NULL, thread_main, NULL);
+        pthread_create(&tids[i], NULL, client_thread_main, NULL);
     }
 
     for (int i = 0; i < thread_num; i++) {

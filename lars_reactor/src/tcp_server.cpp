@@ -137,7 +137,9 @@ void tcp_server::increase_conn(int connfd, tcp_conn *conn)
 void tcp_server::decrease_conn(int connfd)
 {
     pthread_mutex_lock(&_conns_mutex);
+    tcp_conn * temp = conns[connfd];
     conns[connfd] = NULL;
+    delete temp;
     _curr_conns--;
     pthread_mutex_unlock(&_conns_mutex);
 }
@@ -157,7 +159,7 @@ void tcp_server::do_accept()
     while(true) {
         //accept与客户端创建链接
         connfd = accept(_sockfd, (struct sockaddr*)&_connaddr, &_addrlen);
-        printf("accept connfd = %d",connfd);
+        printf("accept connfd = %d\n",connfd);
         if (connfd == -1) {
             if (errno == EINTR) {
                 fprintf(stderr, "accept errno=EINTR\n");

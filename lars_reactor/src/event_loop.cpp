@@ -1,6 +1,6 @@
 #include "event_loop.h"
 #include <assert.h>
-
+#include "tcp_server.h"
 //构造，初始化epoll堆
 event_loop::event_loop() 
 {
@@ -27,7 +27,11 @@ void event_loop::event_process()
 
             io_event *ev = &(ev_it->second);
 
-            if (_fired_evs[i].events & EPOLLIN) {
+            if(_fired_evs[i].events & EPOLLRDHUP){
+                printf("断开链接\n");
+                tcp_server::decrease_conn( _fired_evs[i].data.fd);
+            }
+            else if (_fired_evs[i].events & EPOLLIN) {
                 //读事件，掉读回调函数
                 void *args = ev->rcb_args;
                 ev->read_callback(this, _fired_evs[i].data.fd, args);
@@ -53,7 +57,6 @@ void event_loop::event_process()
                     this->del_io_event(_fired_evs[i].data.fd);
                 }
             }
-
         }
         //每次处理完一组epoll_wait触发的事件之后，处理异步任务
         this->execute_ready_tasks();

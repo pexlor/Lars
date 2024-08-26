@@ -50,8 +50,6 @@ void callback_busi(const char *data, uint32_t len, int msgid, void *args, tcp_co
     conn->send_message(data, len, msgid);
 }
 
-
-
 static void conn_rd_callback(event_loop *loop, int fd, void *args)
 {
 
@@ -83,7 +81,7 @@ tcp_conn::tcp_conn(int connfd, event_loop *loop)
     }
 
     //3. 将该链接的读事件让event_loop监控 
-    _loop->add_io_event(_connfd, conn_rd_callback, EPOLLIN, this);
+    _loop->add_io_event(_connfd, conn_rd_callback, EPOLLIN | EPOLLET | EPOLLRDHUP, this);
     
     //4 将该链接集成到对应的tcp_server中
     tcp_server::increase_conn(_connfd, this);
@@ -91,7 +89,6 @@ tcp_conn::tcp_conn(int connfd, event_loop *loop)
 
 tcp_conn::~tcp_conn()
 {
-    printf("close connection : %d",_connfd);
     clean_conn();
 }
 
@@ -101,13 +98,13 @@ void tcp_conn::do_read()
 
     if(ret == -1){
         fprintf(stderr, "read data from socket\n");
-        this->clean_conn();
+        //this->clean_conn();
         return;
     }
     else if(ret == 0){
         //对端正常关闭
         printf("connection closed by peer\n");
-        clean_conn();
+        //clean_conn();
         return ;
     }
     //2. 解析msg_head数据    
@@ -119,7 +116,7 @@ void tcp_conn::do_read()
         memcpy(&head, ibuf.data(), MESSAGE_HEAD_LEN);
         if(head.msglen > MESSAGE_LENGTH_LIMIT || head.msglen < 0) {
             fprintf(stderr, "data format error, need close, msglen = %d\n", head.msglen);
-            this->clean_conn();
+            //this->clean_conn();
             break;
         }
         if (ibuf.length() < MESSAGE_HEAD_LEN + head.msglen) {
@@ -161,7 +158,7 @@ void tcp_conn::do_write()
         int ret = obuf.write2fd(_connfd);
         if (ret == -1) {
             fprintf(stderr, "write2fd error, close conn!\n");
-            this->clean_conn();
+            //this->clean_conn();
             return ;
         }
         if (ret == 0) {
@@ -181,15 +178,10 @@ void tcp_conn::do_write()
 //销毁tcp_conn
 void tcp_conn::clean_conn()
 {
-    //链接清理工作
-    //1 将该链接从tcp_server摘除掉    
-    tcp_server::decrease_conn(_connfd);
-    //2 将该链接从event_loop中摘除
+
     _loop->del_io_event(_connfd);
-    //3 buf清空
     ibuf.clear(); 
     obuf.clear();
-    //4 关闭原始套接字
     int fd = _connfd;
     _connfd = -1;
     close(fd);
