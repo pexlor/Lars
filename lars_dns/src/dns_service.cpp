@@ -15,7 +15,6 @@ int main(int argc, char **argv)
     tcp_server *server = new tcp_server(ip.c_str(), port);
 
     //注册路由业务
-    
 
     //测试mysql接口
     MYSQL dbconn;
