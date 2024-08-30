@@ -15,3 +15,5 @@
 
 # DNS服务流程
 ![DNS SERVICE](./res/3-Lars-dnsserver.webp "DNS SERVICE")
+# report service 流程
+
