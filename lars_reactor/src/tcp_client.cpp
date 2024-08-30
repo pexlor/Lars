@@ -98,23 +98,17 @@ void tcp_client::do_connect()
     int ret = connect(_sockfd, (const struct sockaddr*)&_server_addr, _addrlen);
     if (ret == 0) {
         //链接创建成功  
-        
         connected = true; 
-
         //调用开发者客户端注册的创建链接之后的hook函数
         if (_conn_start_cb != NULL) {
             _conn_start_cb(this, _conn_start_cb_args);
         }
-        
-
         //注册读回调
         _loop->add_io_event(_sockfd, read_callback, EPOLLIN, this);
         //如果写缓冲去有数据，那么也需要触发写回调
         if (this->_obuf.length != 0) {
             _loop->add_io_event(_sockfd, write_callback, EPOLLOUT, this);
         }
-        
-        
         printf("connect %s:%d succ!\n", inet_ntoa(_server_addr.sin_addr), ntohs(_server_addr.sin_port));
     }
     else {
@@ -275,8 +269,6 @@ int tcp_client::do_write()
     }
 
     if (_obuf.length == 0) {
-        //已经写完，删除写事件
-        //printf("do write over, del EPOLLOUT\n");
         this->_loop->del_io_event(_sockfd, EPOLLOUT);
     }
 

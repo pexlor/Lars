@@ -4,6 +4,7 @@
 #include <unordered_set>
 #include "subscribe.h"
 typedef std::unordered_set<uint64_t> client_sub_mod_list;
+tcp_server *server;
 
 void get_route(const char *data, uint32_t len, int msgid, net_connection *net_conn, void *user_data)
 {
@@ -83,7 +84,7 @@ int main(int argc, char **argv)
     std::string ip =  "0.0.0.0";
     short port =  5000;
     //创建tcp服务器
-    tcp_server *server = new tcp_server(ip.c_str(), port);
+    server = new tcp_server(ip.c_str(), port);
 
     server->set_conn_start(create_subscribe);
     server->set_conn_close(clear_subscribe);

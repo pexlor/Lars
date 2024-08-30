@@ -74,9 +74,8 @@ void *check_route_changes(void *args)
             //推送
             SubscribeList::instance()->publish(changes);
 
-            //2.4 删除当前版本之前的修改记录
+            //2.4 删除当前版本之前的修改记录tcp_server *server
             Route::instance()->remove_changes();
-
         }
         else {
             //3 如果没有修改
@@ -114,8 +113,8 @@ void Route::connect_db()
 {
     std::string db_host =  "127.0.0.1";
     short db_port =3306;
-    std::string db_user = "root";
-    std::string db_passwd = "aceld";
+    std::string db_user = "pexlor";
+    std::string db_passwd = "234432rT";
     std::string db_name = "lars_dns";
     mysql_init(&_db_conn);
 
@@ -253,7 +252,7 @@ int Route::load_route_data()
 
         (*_temp_pointer)[key].insert(value);
     }
-    printf("load data to tmep succ! size is %lu\n", _temp_pointer->size());
+    //printf("load data to tmep succ! size is %lu\n", _temp_pointer->size());
 
     mysql_free_result(result);
 
