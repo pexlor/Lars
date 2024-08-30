@@ -33,12 +33,9 @@ void deal_task_message(event_loop *loop, int fd, void *args)
                 fprintf(stderr, "in thread new tcp_conn error\n");
                 exit(1);
             }
-
             printf("[thread %d]: get new connection succ!\n",syscall(SYS_gettid));
         }
         else if (task.type == task_msg::NEW_TASK) {
-            //是一个新的普通任务
-            //TODO
             loop->add_task(task.task_cb, task.args);
         } 
         else {
@@ -106,8 +103,8 @@ thread_queue<task_msg>* thread_pool::get_thread()
     if (_index == _thread_cnt) {
         _index = 0; 
     }
-
-    return _queues[_index++];
+    
+    return _queues[_index];
 }
 
 void thread_pool::send_task(task_func func, void *args)

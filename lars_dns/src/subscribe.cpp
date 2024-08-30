@@ -45,6 +45,9 @@ SubscribeList::SubscribeList()
 }
 
 //订阅
+/**
+ * @param mod = modid<<32 + comid
+*/
 void SubscribeList::subscribe(uint64_t mod, int fd)
 {
     //将mod->fd的关系加入到_book_list中
@@ -81,8 +84,8 @@ void push_change_task(event_loop *loop, void *args)
     subscribe->make_publish_map(online_fds, need_publish);
 
     //3 依次从need_publish取出数据 发送给对应客户端链接
-    publish_map::iterator it; 
-    for (it = need_publish.begin(); it != need_publish.end(); it++) {
+ 
+    for (auto it = need_publish.begin(); it != need_publish.end(); it++) {
         int fd = it->first; //fd
 
         //遍历 fd对应的 modid/cmdid集合

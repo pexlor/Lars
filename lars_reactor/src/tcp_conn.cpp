@@ -178,7 +178,6 @@ void tcp_conn::do_write()
 //销毁tcp_conn
 void tcp_conn::clean_conn()
 {
-
     _loop->del_io_event(_connfd);
     ibuf.clear(); 
     obuf.clear();

@@ -3,7 +3,7 @@
 #include <pthread.h>
 #include "task_msg.h"
 #include "thread_queue.h"
-
+#include <atomic>
 class thread_pool
 {
 public:
@@ -27,5 +27,5 @@ private:
     pthread_t * _tids;
 
     //当前选中的线程队列下标
-    int _index;
+    std::atomic_int32_t _index;
 };

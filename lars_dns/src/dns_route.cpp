@@ -49,7 +49,7 @@ Route::Route()
     _data_pointer = new route_map();
     _temp_pointer = new route_map();
 
-    this->connect_db();
+    this->connect_db();//连接数据库
     this->build_maps();
 }
 
@@ -73,11 +73,14 @@ void Route::connect_db()
     }
 }
 
+/**
+ * @param 查询路由表
+ */
 void Route::build_maps()
 {
     int ret = 0;
 
-    snprintf(_sql, 1000, "SELECT * FROM RouteData;");//查询路由信息表
+    snprintf(_sql, 1000, "SELECT * FROM RouteData;");//查询路由信息表的sql语句
     ret = mysql_real_query(&_db_conn, _sql, strlen(_sql));
     if ( ret != 0) {
         fprintf(stderr, "failed to find any data, error %s\n", mysql_error(&_db_conn));
