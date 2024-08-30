@@ -34,19 +34,23 @@ private:
     pthread_mutex_t _push_list_lock;
 
 }; */
-extern tcp_server *server;
+extern tcp_server *server;//server 外链接声明，server定义在上层服务中
 
+
+//静态变量初始化
 SubscribeList * SubscribeList::_instance = nullptr;
 pthread_once_t SubscribeList::_once = PTHREAD_ONCE_INIT;
+
 
 SubscribeList::SubscribeList()
 {
     
 }
 
-//订阅
 /**
- * @param mod = modid<<32 + comid
+ *  订阅服务
+ * @param mod  modid<<32 + comid
+ * @param fd 订阅客户端的套接字fd
 */
 void SubscribeList::subscribe(uint64_t mod, int fd)
 {
@@ -89,7 +93,6 @@ void push_change_task(event_loop *loop, void *args)
         int fd = it->first; //fd
 
         //遍历 fd对应的 modid/cmdid集合
-       
         for (auto st = it->second.begin(); st != it->second.end(); st++) {
             //一个modid/cmdid
             int modid = int((*st) >> 32);
@@ -107,7 +110,6 @@ void push_change_task(event_loop *loop, void *args)
                 lars::HostInfo host_info;
                 host_info.set_ip((uint32_t)(ip_port_pair >> 32));
                 host_info.set_port((int)ip_port_pair);
-
                 //添加到rsp中
                 rsp.add_host()->CopyFrom(host_info);
             }
@@ -149,6 +151,10 @@ void SubscribeList::make_publish_map(
     pthread_mutex_unlock(&_push_list_lock);
 }
 
+/**
+ * 发布消息
+ * @param change_mods 需要发布的那些modid/cmdid组合
+ */
 void SubscribeList::publish(std::vector<uint64_t> &change_mods)
 {
     //1 将change_mods已经修改的mod->fd 
@@ -156,6 +162,7 @@ void SubscribeList::publish(std::vector<uint64_t> &change_mods)
     pthread_mutex_lock(&_book_list_lock);
     pthread_mutex_lock(&_push_list_lock);
 
+    //在_book_list找到这些mods并加入_push_list中
     for (auto it = change_mods.begin(); it != change_mods.end(); it++) {
         uint64_t mod = *it;
         if (_book_list.find(mod) != _book_list.end()) {
@@ -170,5 +177,6 @@ void SubscribeList::publish(std::vector<uint64_t> &change_mods)
     pthread_mutex_unlock(&_push_list_lock);
     pthread_mutex_unlock(&_book_list_lock);
     //2 通知各个线程去执行推送任务
+    //这里解释一下为什么要给全部的线程推送发布服务，是因为不知道要发布的fd在那个线程里面，只好丢给线程自己去判断
     server->thread_poll()->send_task(push_change_task, this);
 }
