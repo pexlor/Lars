@@ -50,7 +50,6 @@ void create_reportdb_threads()
             perror("pthread_create");
             exit(1);
         }
-
         pthread_detach(tid);
     }
 }
@@ -61,10 +60,9 @@ int main(int argc, char **argv)
     event_loop loop;
 
     //加载配置文件
-    config_file::setPath("./conf/lars_reporter.conf");
-    std::string ip = config_file::instance()->GetString("reactor", "ip", "0.0.0.0");
-    short port = config_file::instance()->GetNumber("reactor", "port", 7779);
 
+    std::string ip =  "0.0.0.0";
+    short port = 7779;
 
     //创建tcp server
     tcp_server server(&loop, ip.c_str(), port);
