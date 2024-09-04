@@ -47,7 +47,7 @@ struct TableStruct_lars_2eproto {
     PROTOBUF_SECTION_VARIABLE(protodesc_cold);
   static const ::PROTOBUF_NAMESPACE_ID::internal::AuxiliaryParseTableField aux[]
     PROTOBUF_SECTION_VARIABLE(protodesc_cold);
-  static const ::PROTOBUF_NAMESPACE_ID::internal::ParseTable schema[3]
+  static const ::PROTOBUF_NAMESPACE_ID::internal::ParseTable schema[5]
     PROTOBUF_SECTION_VARIABLE(protodesc_cold);
   static const ::PROTOBUF_NAMESPACE_ID::internal::FieldMetadata field_metadata[];
   static const ::PROTOBUF_NAMESPACE_ID::internal::SerializationTable serialization_table[];
@@ -61,14 +61,22 @@ extern GetRouteRequestDefaultTypeInternal _GetRouteRequest_default_instance_;
 class GetRouteResponse;
 struct GetRouteResponseDefaultTypeInternal;
 extern GetRouteResponseDefaultTypeInternal _GetRouteResponse_default_instance_;
+class HostCallResult;
+struct HostCallResultDefaultTypeInternal;
+extern HostCallResultDefaultTypeInternal _HostCallResult_default_instance_;
 class HostInfo;
 struct HostInfoDefaultTypeInternal;
 extern HostInfoDefaultTypeInternal _HostInfo_default_instance_;
+class ReportStatusRequest;
+struct ReportStatusRequestDefaultTypeInternal;
+extern ReportStatusRequestDefaultTypeInternal _ReportStatusRequest_default_instance_;
 }  // namespace lars
 PROTOBUF_NAMESPACE_OPEN
 template<> ::lars::GetRouteRequest* Arena::CreateMaybeMessage<::lars::GetRouteRequest>(Arena*);
 template<> ::lars::GetRouteResponse* Arena::CreateMaybeMessage<::lars::GetRouteResponse>(Arena*);
+template<> ::lars::HostCallResult* Arena::CreateMaybeMessage<::lars::HostCallResult>(Arena*);
 template<> ::lars::HostInfo* Arena::CreateMaybeMessage<::lars::HostInfo>(Arena*);
+template<> ::lars::ReportStatusRequest* Arena::CreateMaybeMessage<::lars::ReportStatusRequest>(Arena*);
 PROTOBUF_NAMESPACE_CLOSE
 namespace lars {
 
@@ -76,12 +84,13 @@ enum MessageId : int {
   ID_UNKNOW = 0,
   ID_GetRouteRequest = 1,
   ID_GetRouteResponse = 2,
+  ID_ReportStatusRequest = 3,
   MessageId_INT_MIN_SENTINEL_DO_NOT_USE_ = std::numeric_limits<int32_t>::min(),
   MessageId_INT_MAX_SENTINEL_DO_NOT_USE_ = std::numeric_limits<int32_t>::max()
 };
 bool MessageId_IsValid(int value);
 constexpr MessageId MessageId_MIN = ID_UNKNOW;
-constexpr MessageId MessageId_MAX = ID_GetRouteResponse;
+constexpr MessageId MessageId_MAX = ID_ReportStatusRequest;
 constexpr int MessageId_ARRAYSIZE = MessageId_MAX + 1;
 
 const ::PROTOBUF_NAMESPACE_ID::EnumDescriptor* MessageId_descriptor();
@@ -589,6 +598,395 @@ class GetRouteResponse final :
   mutable ::PROTOBUF_NAMESPACE_ID::internal::CachedSize _cached_size_;
   friend struct ::TableStruct_lars_2eproto;
 };
+// -------------------------------------------------------------------
+
+class HostCallResult final :
+    public ::PROTOBUF_NAMESPACE_ID::Message /* @@protoc_insertion_point(class_definition:lars.HostCallResult) */ {
+ public:
+  inline HostCallResult() : HostCallResult(nullptr) {}
+  ~HostCallResult() override;
+  explicit constexpr HostCallResult(::PROTOBUF_NAMESPACE_ID::internal::ConstantInitialized);
+
+  HostCallResult(const HostCallResult& from);
+  HostCallResult(HostCallResult&& from) noexcept
+    : HostCallResult() {
+    *this = ::std::move(from);
+  }
+
+  inline HostCallResult& operator=(const HostCallResult& from) {
+    CopyFrom(from);
+    return *this;
+  }
+  inline HostCallResult& operator=(HostCallResult&& from) noexcept {
+    if (this == &from) return *this;
+    if (GetOwningArena() == from.GetOwningArena()
+  #ifdef PROTOBUF_FORCE_COPY_IN_MOVE
+        && GetOwningArena() != nullptr
+  #endif  // !PROTOBUF_FORCE_COPY_IN_MOVE
+    ) {
+      InternalSwap(&from);
+    } else {
+      CopyFrom(from);
+    }
+    return *this;
+  }
+
+  static const ::PROTOBUF_NAMESPACE_ID::Descriptor* descriptor() {
+    return GetDescriptor();
+  }
+  static const ::PROTOBUF_NAMESPACE_ID::Descriptor* GetDescriptor() {
+    return default_instance().GetMetadata().descriptor;
+  }
+  static const ::PROTOBUF_NAMESPACE_ID::Reflection* GetReflection() {
+    return default_instance().GetMetadata().reflection;
+  }
+  static const HostCallResult& default_instance() {
+    return *internal_default_instance();
+  }
+  static inline const HostCallResult* internal_default_instance() {
+    return reinterpret_cast<const HostCallResult*>(
+               &_HostCallResult_default_instance_);
+  }
+  static constexpr int kIndexInFileMessages =
+    3;
+
+  friend void swap(HostCallResult& a, HostCallResult& b) {
+    a.Swap(&b);
+  }
+  inline void Swap(HostCallResult* other) {
+    if (other == this) return;
+  #ifdef PROTOBUF_FORCE_COPY_IN_SWAP
+    if (GetOwningArena() != nullptr &&
+        GetOwningArena() == other->GetOwningArena()) {
+   #else  // PROTOBUF_FORCE_COPY_IN_SWAP
+    if (GetOwningArena() == other->GetOwningArena()) {
+  #endif  // !PROTOBUF_FORCE_COPY_IN_SWAP
+      InternalSwap(other);
+    } else {
+      ::PROTOBUF_NAMESPACE_ID::internal::GenericSwap(this, other);
+    }
+  }
+  void UnsafeArenaSwap(HostCallResult* other) {
+    if (other == this) return;
+    GOOGLE_DCHECK(GetOwningArena() == other->GetOwningArena());
+    InternalSwap(other);
+  }
+
+  // implements Message ----------------------------------------------
+
+  HostCallResult* New(::PROTOBUF_NAMESPACE_ID::Arena* arena = nullptr) const final {
+    return CreateMaybeMessage<HostCallResult>(arena);
+  }
+  using ::PROTOBUF_NAMESPACE_ID::Message::CopyFrom;
+  void CopyFrom(const HostCallResult& from);
+  using ::PROTOBUF_NAMESPACE_ID::Message::MergeFrom;
+  void MergeFrom(const HostCallResult& from);
+  private:
+  static void MergeImpl(::PROTOBUF_NAMESPACE_ID::Message* to, const ::PROTOBUF_NAMESPACE_ID::Message& from);
+  public:
+  PROTOBUF_ATTRIBUTE_REINITIALIZES void Clear() final;
+  bool IsInitialized() const final;
+
+  size_t ByteSizeLong() const final;
+  const char* _InternalParse(const char* ptr, ::PROTOBUF_NAMESPACE_ID::internal::ParseContext* ctx) final;
+  uint8_t* _InternalSerialize(
+      uint8_t* target, ::PROTOBUF_NAMESPACE_ID::io::EpsCopyOutputStream* stream) const final;
+  int GetCachedSize() const final { return _cached_size_.Get(); }
+
+  private:
+  void SharedCtor();
+  void SharedDtor();
+  void SetCachedSize(int size) const final;
+  void InternalSwap(HostCallResult* other);
+
+  private:
+  friend class ::PROTOBUF_NAMESPACE_ID::internal::AnyMetadata;
+  static ::PROTOBUF_NAMESPACE_ID::StringPiece FullMessageName() {
+    return "lars.HostCallResult";
+  }
+  protected:
+  explicit HostCallResult(::PROTOBUF_NAMESPACE_ID::Arena* arena,
+                       bool is_message_owned = false);
+  private:
+  static void ArenaDtor(void* object);
+  inline void RegisterArenaDtor(::PROTOBUF_NAMESPACE_ID::Arena* arena);
+  public:
+
+  static const ClassData _class_data_;
+  const ::PROTOBUF_NAMESPACE_ID::Message::ClassData*GetClassData() const final;
+
+  ::PROTOBUF_NAMESPACE_ID::Metadata GetMetadata() const final;
+
+  // nested types ----------------------------------------------------
+
+  // accessors -------------------------------------------------------
+
+  enum : int {
+    kIpFieldNumber = 1,
+    kPortFieldNumber = 2,
+    kSuccFieldNumber = 3,
+    kErrFieldNumber = 4,
+    kOverloadFieldNumber = 5,
+  };
+  // int32 ip = 1;
+  void clear_ip();
+  int32_t ip() const;
+  void set_ip(int32_t value);
+  private:
+  int32_t _internal_ip() const;
+  void _internal_set_ip(int32_t value);
+  public:
+
+  // int32 port = 2;
+  void clear_port();
+  int32_t port() const;
+  void set_port(int32_t value);
+  private:
+  int32_t _internal_port() const;
+  void _internal_set_port(int32_t value);
+  public:
+
+  // uint32 succ = 3;
+  void clear_succ();
+  uint32_t succ() const;
+  void set_succ(uint32_t value);
+  private:
+  uint32_t _internal_succ() const;
+  void _internal_set_succ(uint32_t value);
+  public:
+
+  // uint32 err = 4;
+  void clear_err();
+  uint32_t err() const;
+  void set_err(uint32_t value);
+  private:
+  uint32_t _internal_err() const;
+  void _internal_set_err(uint32_t value);
+  public:
+
+  // bool overload = 5;
+  void clear_overload();
+  bool overload() const;
+  void set_overload(bool value);
+  private:
+  bool _internal_overload() const;
+  void _internal_set_overload(bool value);
+  public:
+
+  // @@protoc_insertion_point(class_scope:lars.HostCallResult)
+ private:
+  class _Internal;
+
+  template <typename T> friend class ::PROTOBUF_NAMESPACE_ID::Arena::InternalHelper;
+  typedef void InternalArenaConstructable_;
+  typedef void DestructorSkippable_;
+  int32_t ip_;
+  int32_t port_;
+  uint32_t succ_;
+  uint32_t err_;
+  bool overload_;
+  mutable ::PROTOBUF_NAMESPACE_ID::internal::CachedSize _cached_size_;
+  friend struct ::TableStruct_lars_2eproto;
+};
+// -------------------------------------------------------------------
+
+class ReportStatusRequest final :
+    public ::PROTOBUF_NAMESPACE_ID::Message /* @@protoc_insertion_point(class_definition:lars.ReportStatusRequest) */ {
+ public:
+  inline ReportStatusRequest() : ReportStatusRequest(nullptr) {}
+  ~ReportStatusRequest() override;
+  explicit constexpr ReportStatusRequest(::PROTOBUF_NAMESPACE_ID::internal::ConstantInitialized);
+
+  ReportStatusRequest(const ReportStatusRequest& from);
+  ReportStatusRequest(ReportStatusRequest&& from) noexcept
+    : ReportStatusRequest() {
+    *this = ::std::move(from);
+  }
+
+  inline ReportStatusRequest& operator=(const ReportStatusRequest& from) {
+    CopyFrom(from);
+    return *this;
+  }
+  inline ReportStatusRequest& operator=(ReportStatusRequest&& from) noexcept {
+    if (this == &from) return *this;
+    if (GetOwningArena() == from.GetOwningArena()
+  #ifdef PROTOBUF_FORCE_COPY_IN_MOVE
+        && GetOwningArena() != nullptr
+  #endif  // !PROTOBUF_FORCE_COPY_IN_MOVE
+    ) {
+      InternalSwap(&from);
+    } else {
+      CopyFrom(from);
+    }
+    return *this;
+  }
+
+  static const ::PROTOBUF_NAMESPACE_ID::Descriptor* descriptor() {
+    return GetDescriptor();
+  }
+  static const ::PROTOBUF_NAMESPACE_ID::Descriptor* GetDescriptor() {
+    return default_instance().GetMetadata().descriptor;
+  }
+  static const ::PROTOBUF_NAMESPACE_ID::Reflection* GetReflection() {
+    return default_instance().GetMetadata().reflection;
+  }
+  static const ReportStatusRequest& default_instance() {
+    return *internal_default_instance();
+  }
+  static inline const ReportStatusRequest* internal_default_instance() {
+    return reinterpret_cast<const ReportStatusRequest*>(
+               &_ReportStatusRequest_default_instance_);
+  }
+  static constexpr int kIndexInFileMessages =
+    4;
+
+  friend void swap(ReportStatusRequest& a, ReportStatusRequest& b) {
+    a.Swap(&b);
+  }
+  inline void Swap(ReportStatusRequest* other) {
+    if (other == this) return;
+  #ifdef PROTOBUF_FORCE_COPY_IN_SWAP
+    if (GetOwningArena() != nullptr &&
+        GetOwningArena() == other->GetOwningArena()) {
+   #else  // PROTOBUF_FORCE_COPY_IN_SWAP
+    if (GetOwningArena() == other->GetOwningArena()) {
+  #endif  // !PROTOBUF_FORCE_COPY_IN_SWAP
+      InternalSwap(other);
+    } else {
+      ::PROTOBUF_NAMESPACE_ID::internal::GenericSwap(this, other);
+    }
+  }
+  void UnsafeArenaSwap(ReportStatusRequest* other) {
+    if (other == this) return;
+    GOOGLE_DCHECK(GetOwningArena() == other->GetOwningArena());
+    InternalSwap(other);
+  }
+
+  // implements Message ----------------------------------------------
+
+  ReportStatusRequest* New(::PROTOBUF_NAMESPACE_ID::Arena* arena = nullptr) const final {
+    return CreateMaybeMessage<ReportStatusRequest>(arena);
+  }
+  using ::PROTOBUF_NAMESPACE_ID::Message::CopyFrom;
+  void CopyFrom(const ReportStatusRequest& from);
+  using ::PROTOBUF_NAMESPACE_ID::Message::MergeFrom;
+  void MergeFrom(const ReportStatusRequest& from);
+  private:
+  static void MergeImpl(::PROTOBUF_NAMESPACE_ID::Message* to, const ::PROTOBUF_NAMESPACE_ID::Message& from);
+  public:
+  PROTOBUF_ATTRIBUTE_REINITIALIZES void Clear() final;
+  bool IsInitialized() const final;
+
+  size_t ByteSizeLong() const final;
+  const char* _InternalParse(const char* ptr, ::PROTOBUF_NAMESPACE_ID::internal::ParseContext* ctx) final;
+  uint8_t* _InternalSerialize(
+      uint8_t* target, ::PROTOBUF_NAMESPACE_ID::io::EpsCopyOutputStream* stream) const final;
+  int GetCachedSize() const final { return _cached_size_.Get(); }
+
+  private:
+  void SharedCtor();
+  void SharedDtor();
+  void SetCachedSize(int size) const final;
+  void InternalSwap(ReportStatusRequest* other);
+
+  private:
+  friend class ::PROTOBUF_NAMESPACE_ID::internal::AnyMetadata;
+  static ::PROTOBUF_NAMESPACE_ID::StringPiece FullMessageName() {
+    return "lars.ReportStatusRequest";
+  }
+  protected:
+  explicit ReportStatusRequest(::PROTOBUF_NAMESPACE_ID::Arena* arena,
+                       bool is_message_owned = false);
+  private:
+  static void ArenaDtor(void* object);
+  inline void RegisterArenaDtor(::PROTOBUF_NAMESPACE_ID::Arena* arena);
+  public:
+
+  static const ClassData _class_data_;
+  const ::PROTOBUF_NAMESPACE_ID::Message::ClassData*GetClassData() const final;
+
+  ::PROTOBUF_NAMESPACE_ID::Metadata GetMetadata() const final;
+
+  // nested types ----------------------------------------------------
+
+  // accessors -------------------------------------------------------
+
+  enum : int {
+    kResultsFieldNumber = 4,
+    kModidFieldNumber = 1,
+    kCmdidFieldNumber = 2,
+    kCallerFieldNumber = 3,
+    kTsFieldNumber = 5,
+  };
+  // repeated .lars.HostCallResult results = 4;
+  int results_size() const;
+  private:
+  int _internal_results_size() const;
+  public:
+  void clear_results();
+  ::lars::HostCallResult* mutable_results(int index);
+  ::PROTOBUF_NAMESPACE_ID::RepeatedPtrField< ::lars::HostCallResult >*
+      mutable_results();
+  private:
+  const ::lars::HostCallResult& _internal_results(int index) const;
+  ::lars::HostCallResult* _internal_add_results();
+  public:
+  const ::lars::HostCallResult& results(int index) const;
+  ::lars::HostCallResult* add_results();
+  const ::PROTOBUF_NAMESPACE_ID::RepeatedPtrField< ::lars::HostCallResult >&
+      results() const;
+
+  // int32 modid = 1;
+  void clear_modid();
+  int32_t modid() const;
+  void set_modid(int32_t value);
+  private:
+  int32_t _internal_modid() const;
+  void _internal_set_modid(int32_t value);
+  public:
+
+  // int32 cmdid = 2;
+  void clear_cmdid();
+  int32_t cmdid() const;
+  void set_cmdid(int32_t value);
+  private:
+  int32_t _internal_cmdid() const;
+  void _internal_set_cmdid(int32_t value);
+  public:
+
+  // int32 caller = 3;
+  void clear_caller();
+  int32_t caller() const;
+  void set_caller(int32_t value);
+  private:
+  int32_t _internal_caller() const;
+  void _internal_set_caller(int32_t value);
+  public:
+
+  // uint32 ts = 5;
+  void clear_ts();
+  uint32_t ts() const;
+  void set_ts(uint32_t value);
+  private:
+  uint32_t _internal_ts() const;
+  void _internal_set_ts(uint32_t value);
+  public:
+
+  // @@protoc_insertion_point(class_scope:lars.ReportStatusRequest)
+ private:
+  class _Internal;
+
+  template <typename T> friend class ::PROTOBUF_NAMESPACE_ID::Arena::InternalHelper;
+  typedef void InternalArenaConstructable_;
+  typedef void DestructorSkippable_;
+  ::PROTOBUF_NAMESPACE_ID::RepeatedPtrField< ::lars::HostCallResult > results_;
+  int32_t modid_;
+  int32_t cmdid_;
+  int32_t caller_;
+  uint32_t ts_;
+  mutable ::PROTOBUF_NAMESPACE_ID::internal::CachedSize _cached_size_;
+  friend struct ::TableStruct_lars_2eproto;
+};
 // ===================================================================
 
 
@@ -768,9 +1166,241 @@ GetRouteResponse::host() const {
   return host_;
 }
 
+// -------------------------------------------------------------------
+
+// HostCallResult
+
+// int32 ip = 1;
+inline void HostCallResult::clear_ip() {
+  ip_ = 0;
+}
+inline int32_t HostCallResult::_internal_ip() const {
+  return ip_;
+}
+inline int32_t HostCallResult::ip() const {
+  // @@protoc_insertion_point(field_get:lars.HostCallResult.ip)
+  return _internal_ip();
+}
+inline void HostCallResult::_internal_set_ip(int32_t value) {
+  
+  ip_ = value;
+}
+inline void HostCallResult::set_ip(int32_t value) {
+  _internal_set_ip(value);
+  // @@protoc_insertion_point(field_set:lars.HostCallResult.ip)
+}
+
+// int32 port = 2;
+inline void HostCallResult::clear_port() {
+  port_ = 0;
+}
+inline int32_t HostCallResult::_internal_port() const {
+  return port_;
+}
+inline int32_t HostCallResult::port() const {
+  // @@protoc_insertion_point(field_get:lars.HostCallResult.port)
+  return _internal_port();
+}
+inline void HostCallResult::_internal_set_port(int32_t value) {
+  
+  port_ = value;
+}
+inline void HostCallResult::set_port(int32_t value) {
+  _internal_set_port(value);
+  // @@protoc_insertion_point(field_set:lars.HostCallResult.port)
+}
+
+// uint32 succ = 3;
+inline void HostCallResult::clear_succ() {
+  succ_ = 0u;
+}
+inline uint32_t HostCallResult::_internal_succ() const {
+  return succ_;
+}
+inline uint32_t HostCallResult::succ() const {
+  // @@protoc_insertion_point(field_get:lars.HostCallResult.succ)
+  return _internal_succ();
+}
+inline void HostCallResult::_internal_set_succ(uint32_t value) {
+  
+  succ_ = value;
+}
+inline void HostCallResult::set_succ(uint32_t value) {
+  _internal_set_succ(value);
+  // @@protoc_insertion_point(field_set:lars.HostCallResult.succ)
+}
+
+// uint32 err = 4;
+inline void HostCallResult::clear_err() {
+  err_ = 0u;
+}
+inline uint32_t HostCallResult::_internal_err() const {
+  return err_;
+}
+inline uint32_t HostCallResult::err() const {
+  // @@protoc_insertion_point(field_get:lars.HostCallResult.err)
+  return _internal_err();
+}
+inline void HostCallResult::_internal_set_err(uint32_t value) {
+  
+  err_ = value;
+}
+inline void HostCallResult::set_err(uint32_t value) {
+  _internal_set_err(value);
+  // @@protoc_insertion_point(field_set:lars.HostCallResult.err)
+}
+
+// bool overload = 5;
+inline void HostCallResult::clear_overload() {
+  overload_ = false;
+}
+inline bool HostCallResult::_internal_overload() const {
+  return overload_;
+}
+inline bool HostCallResult::overload() const {
+  // @@protoc_insertion_point(field_get:lars.HostCallResult.overload)
+  return _internal_overload();
+}
+inline void HostCallResult::_internal_set_overload(bool value) {
+  
+  overload_ = value;
+}
+inline void HostCallResult::set_overload(bool value) {
+  _internal_set_overload(value);
+  // @@protoc_insertion_point(field_set:lars.HostCallResult.overload)
+}
+
+// -------------------------------------------------------------------
+
+// ReportStatusRequest
+
+// int32 modid = 1;
+inline void ReportStatusRequest::clear_modid() {
+  modid_ = 0;
+}
+inline int32_t ReportStatusRequest::_internal_modid() const {
+  return modid_;
+}
+inline int32_t ReportStatusRequest::modid() const {
+  // @@protoc_insertion_point(field_get:lars.ReportStatusRequest.modid)
+  return _internal_modid();
+}
+inline void ReportStatusRequest::_internal_set_modid(int32_t value) {
+  
+  modid_ = value;
+}
+inline void ReportStatusRequest::set_modid(int32_t value) {
+  _internal_set_modid(value);
+  // @@protoc_insertion_point(field_set:lars.ReportStatusRequest.modid)
+}
+
+// int32 cmdid = 2;
+inline void ReportStatusRequest::clear_cmdid() {
+  cmdid_ = 0;
+}
+inline int32_t ReportStatusRequest::_internal_cmdid() const {
+  return cmdid_;
+}
+inline int32_t ReportStatusRequest::cmdid() const {
+  // @@protoc_insertion_point(field_get:lars.ReportStatusRequest.cmdid)
+  return _internal_cmdid();
+}
+inline void ReportStatusRequest::_internal_set_cmdid(int32_t value) {
+  
+  cmdid_ = value;
+}
+inline void ReportStatusRequest::set_cmdid(int32_t value) {
+  _internal_set_cmdid(value);
+  // @@protoc_insertion_point(field_set:lars.ReportStatusRequest.cmdid)
+}
+
+// int32 caller = 3;
+inline void ReportStatusRequest::clear_caller() {
+  caller_ = 0;
+}
+inline int32_t ReportStatusRequest::_internal_caller() const {
+  return caller_;
+}
+inline int32_t ReportStatusRequest::caller() const {
+  // @@protoc_insertion_point(field_get:lars.ReportStatusRequest.caller)
+  return _internal_caller();
+}
+inline void ReportStatusRequest::_internal_set_caller(int32_t value) {
+  
+  caller_ = value;
+}
+inline void ReportStatusRequest::set_caller(int32_t value) {
+  _internal_set_caller(value);
+  // @@protoc_insertion_point(field_set:lars.ReportStatusRequest.caller)
+}
+
+// repeated .lars.HostCallResult results = 4;
+inline int ReportStatusRequest::_internal_results_size() const {
+  return results_.size();
+}
+inline int ReportStatusRequest::results_size() const {
+  return _internal_results_size();
+}
+inline void ReportStatusRequest::clear_results() {
+  results_.Clear();
+}
+inline ::lars::HostCallResult* ReportStatusRequest::mutable_results(int index) {
+  // @@protoc_insertion_point(field_mutable:lars.ReportStatusRequest.results)
+  return results_.Mutable(index);
+}
+inline ::PROTOBUF_NAMESPACE_ID::RepeatedPtrField< ::lars::HostCallResult >*
+ReportStatusRequest::mutable_results() {
+  // @@protoc_insertion_point(field_mutable_list:lars.ReportStatusRequest.results)
+  return &results_;
+}
+inline const ::lars::HostCallResult& ReportStatusRequest::_internal_results(int index) const {
+  return results_.Get(index);
+}
+inline const ::lars::HostCallResult& ReportStatusRequest::results(int index) const {
+  // @@protoc_insertion_point(field_get:lars.ReportStatusRequest.results)
+  return _internal_results(index);
+}
+inline ::lars::HostCallResult* ReportStatusRequest::_internal_add_results() {
+  return results_.Add();
+}
+inline ::lars::HostCallResult* ReportStatusRequest::add_results() {
+  ::lars::HostCallResult* _add = _internal_add_results();
+  // @@protoc_insertion_point(field_add:lars.ReportStatusRequest.results)
+  return _add;
+}
+inline const ::PROTOBUF_NAMESPACE_ID::RepeatedPtrField< ::lars::HostCallResult >&
+ReportStatusRequest::results() const {
+  // @@protoc_insertion_point(field_list:lars.ReportStatusRequest.results)
+  return results_;
+}
+
+// uint32 ts = 5;
+inline void ReportStatusRequest::clear_ts() {
+  ts_ = 0u;
+}
+inline uint32_t ReportStatusRequest::_internal_ts() const {
+  return ts_;
+}
+inline uint32_t ReportStatusRequest::ts() const {
+  // @@protoc_insertion_point(field_get:lars.ReportStatusRequest.ts)
+  return _internal_ts();
+}
+inline void ReportStatusRequest::_internal_set_ts(uint32_t value) {
+  
+  ts_ = value;
+}
+inline void ReportStatusRequest::set_ts(uint32_t value) {
+  _internal_set_ts(value);
+  // @@protoc_insertion_point(field_set:lars.ReportStatusRequest.ts)
+}
+
 #ifdef __GNUC__
   #pragma GCC diagnostic pop
 #endif  // __GNUC__
+// -------------------------------------------------------------------
+
+// -------------------------------------------------------------------
+
 // -------------------------------------------------------------------
 
 // -------------------------------------------------------------------

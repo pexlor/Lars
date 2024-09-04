@@ -14,6 +14,10 @@
 1. 使用了内存池，每个连接的缓冲区从内存池里面拿
 2. 每个线程都有自己的任务队列，tcp_server分配任务时直接发送到对应线程的任务队列
 
+
+## 待改进方面
+1. 负载均衡的线程池，可加入优先级策略
+2. 
 # DNS服务流程
 ![DNS SERVICE](./res/3-Lars-dnsserver.webp "DNS SERVICE")
 # report service 流程

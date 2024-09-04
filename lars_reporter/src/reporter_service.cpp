@@ -20,13 +20,13 @@ void get_report_status(const char *data, uint32_t len, int msgid, net_connection
     static int index = 0;
     //将消息发送给某个线程消息队列
     reportQueues[index]->send(req);
-    index ++;
+    index++;
     index = index % thread_cnt;
 }
 
 void create_reportdb_threads()
 {
-    thread_cnt = config_file::instance()->GetNumber("reporter", "db_thread_cnt", 3);
+    thread_cnt = 3;
     
     //开线程池的消息队列
     reportQueues = new thread_queue<lars::ReportStatusRequest>*[thread_cnt];
