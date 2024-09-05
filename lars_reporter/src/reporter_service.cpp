@@ -2,6 +2,7 @@
 #include "lars.pb.h"
 #include "store_report.h"
 #include <string>
+#include "report_logo.h"
 
 thread_queue<lars::ReportStatusRequest> **reportQueues = NULL;
 int thread_cnt = 0;
@@ -24,10 +25,10 @@ void get_report_status(const char *data, uint32_t len, int msgid, net_connection
     index = index % thread_cnt;
 }
 
+
 void create_reportdb_threads()
 {
     thread_cnt = 3;
-    
     //开线程池的消息队列
     reportQueues = new thread_queue<lars::ReportStatusRequest>*[thread_cnt];
 
@@ -57,7 +58,7 @@ void create_reportdb_threads()
 
 int main(int argc, char **argv)
 {
-    event_loop loop;
+    lars_report_logo();
 
     //加载配置文件
 
@@ -65,7 +66,7 @@ int main(int argc, char **argv)
     short port = 7779;
 
     //创建tcp server
-    tcp_server server(&loop, ip.c_str(), port);
+    tcp_server server(ip.c_str(), port);
 
     //添加数据上报请求处理的消息分发处理业务
     server.add_msg_router(lars::ID_ReportStatusRequest, get_report_status);
@@ -74,7 +75,7 @@ int main(int argc, char **argv)
     create_reportdb_threads();
   
     //启动事件监听
-    loop.event_process(); 
+    server.start();
 
     return 0;
 }
