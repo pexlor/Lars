@@ -19,6 +19,8 @@ public:
 
     //处理消息业务
     void do_read();
+
+    int get_fd();
     
 private:
     int _sockfd;

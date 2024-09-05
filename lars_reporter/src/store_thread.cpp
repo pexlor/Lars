@@ -22,12 +22,10 @@ void thread_report(event_loop *loop, int fd, void *args)
     while ( !report_msgs.empty() ) {
         lars::ReportStatusRequest msg = report_msgs.front();
         report_msgs.pop();
-
         //2. 将数据存储到DB中(需要StoreReport)
         sr->store(msg);
     }
 }
-
 
 void *store_main(void *args)
 {
@@ -46,7 +44,6 @@ void *store_main(void *args)
 
     queue->set_loop(&loop);
     queue->set_callback(thread_report, &callback_args);
-
 
     //启动事件监听
     loop.event_process();

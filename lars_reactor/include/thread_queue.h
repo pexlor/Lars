@@ -55,10 +55,8 @@ public:
         if (ret == -1) {
             perror("_evfd read");
         }
-
         //将当前的队列拷贝出去,将一个空队列换回当前队列,同时清空自身队列，确保new_queue是空队列
         std::swap(new_queue, _queue);
-
         pthread_mutex_unlock(&_queue_mutex);
     }
 

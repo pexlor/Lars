@@ -55,7 +55,6 @@ void create_reportdb_threads()
     }
 }
 
-
 int main(int argc, char **argv)
 {
     lars_report_logo();
