@@ -34,8 +34,8 @@ void *dns_client_thread(void* args)
     event_loop loop;
 
     //1 加载配置文件得到dns service ip + port
-    std::string ip = config_file::instance()->GetString("dnsserver", "ip", "");
-    short port = config_file::instance()->GetNumber("dnsserver", "port", 0);
+    std::string ip = "0.0.0.0";//config_file::instance()->GetString("dnsserver", "ip", "");
+    short port = 5000;//config_file::instance()->GetNumber("dnsserver", "port", 0);
 
     //2 创建客户端
     tcp_client client(&loop, ip.c_str(), port, "dns client");
