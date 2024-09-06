@@ -1,10 +1,12 @@
 #pragma once
-#include <iostream>
+#include <stdint.h>
+
 /*
- *   被代理的主机基本信息
+ *  被代理的主机基本信息
  *
  * */
-struct host_info {
+class host_info {
+public:
     host_info(uint32_t ip, int port, uint32_t init_vsucc):
         ip(ip),
         port(port),
@@ -16,8 +18,14 @@ struct host_info {
         contin_err(0),
         overload(false)
     {
-        //host_info初始化构造函数
+
     }
+
+    void set_idle();
+    void set_overload();
+
+    //计算整个窗口内的真实失败率，如果达到连续失败窗口值则返回true，代表需要调整状态
+    bool check_window();
 
     uint32_t ip;            //host被代理主机IP
     int port;               //host被代理主机端口
@@ -29,4 +37,7 @@ struct host_info {
     uint32_t contin_err;    //连续失败次数
 
     bool overload;          //是否过载
+
+    long idle_ts;           //当前节点成为idle状态的时刻 
+    long overload_ts;       //当节点成为overload状态的时刻 
 };

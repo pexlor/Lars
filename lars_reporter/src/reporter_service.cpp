@@ -60,9 +60,9 @@ int main(int argc, char **argv)
     lars_report_logo();
 
     //加载配置文件
-
-    std::string ip =  "0.0.0.0";
-    short port = 7779;
+    config_file::setPath("./conf/lars_reporter.conf");
+    std::string ip = config_file::instance()->GetString("reactor", "ip", "0.0.0.0");
+    short port = config_file::instance()->GetNumber("reactor", "port", 7779);
 
     //创建tcp server
     tcp_server server(ip.c_str(), port);

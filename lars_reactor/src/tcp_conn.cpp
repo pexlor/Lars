@@ -98,13 +98,11 @@ void tcp_conn::do_read()
 
     if(ret == -1){
         fprintf(stderr, "read data from socket\n");
-        //this->clean_conn();
         return;
     }
     else if(ret == 0){
         //对端正常关闭
         printf("connection closed by peer\n");
-        //clean_conn();
         return ;
     }
     //2. 解析msg_head数据    

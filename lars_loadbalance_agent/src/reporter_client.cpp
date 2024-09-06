@@ -1,7 +1,7 @@
 #include "lars_reactor.h"
 #include "main_server.h"
+#include <string>
 #include <pthread.h>
-
 
 //typedef void io_callback(event_loop *loop, int fd, void *args);
 //只要thread_queue有数据，loop就会触发此回调函数来处理业务
@@ -28,17 +28,16 @@ void new_report_request(event_loop *loop, int fd, void *args)
     }
 }
 
-/*
-report client主要是实现thread_queue的回调业务
-udp server会定期的上传上报数据到reporter，那么请求对于report client就是透传给reporter serivce即可
-*/
+
 void *report_client_thread(void* args)
 {
-    printf("report client thread start\n");
+    printf("[report] client thread start...\n");
+    
     event_loop loop;
+
     //1 加载配置文件得到repoter ip + port
-    std::string ip = "0.0.0.0";
-    short port = 5000; //待定
+    std::string ip = config_file::instance()->GetString("reporter", "ip", "");
+    short port = config_file::instance()->GetNumber("reporter", "port", 0);
 
     //2 创建客户端
     tcp_client client(&loop, ip.c_str(), port, "reporter client");
@@ -52,6 +51,7 @@ void *report_client_thread(void* args)
 
     return NULL;
 }
+
 
 void start_report_client()
 {

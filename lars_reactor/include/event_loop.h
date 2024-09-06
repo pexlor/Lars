@@ -10,7 +10,7 @@
 #include <ext/hash_set>
 #include "event_base.h"
 
-#define MAXEVENTS 10
+#define MAXEVENTS 10000
 //定义异步任务回调函数类型
 typedef void (*task_func)(event_loop *loop, void *args);
 

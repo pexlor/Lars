@@ -1,4 +1,14 @@
+#include "main_server.h"
 #include "load_balance.h"
+#include "lars.pb.h"
+
+
+//判断是否已经没有host在当前LB节点中
+bool load_balance::empty() const
+{
+    return _host_map.empty();
+}
+
 
 //从一个host_list中得到一个节点放到GetHostResponse 的HostInfo中
 static void get_host_from_list(lars::GetHostResponse &rsp, host_list &l)
@@ -17,6 +27,15 @@ static void get_host_from_list(lars::GetHostResponse &rsp, host_list &l)
     l.push_back(host);
 }
 
+//获取当前挂载下的全部host信息 添加到vec中
+void load_balance::get_all_hosts(std::vector<host_info*> &vec)
+{
+    for (auto it = _host_map.begin(); it != _host_map.end(); it++) {
+        host_info *hi = it->second;
+        vec.push_back(hi);
+    }
+}
+
 //从两个队列中获取一个host给到上层
 int load_balance::choice_one_host(lars::GetHostResponse &rsp)
 {
@@ -29,6 +48,7 @@ int load_balance::choice_one_host(lars::GetHostResponse &rsp)
 
             //从 overload_list中选择一个已经过载的节点
             get_host_from_list(rsp, _overload_list);
+            printf("_idle_list is empty--->choice from _overload_list!!!!!!!\n");
         }
         else {
             //明确返回给API层，已经过载了
@@ -49,20 +69,23 @@ int load_balance::choice_one_host(lars::GetHostResponse &rsp)
             
             //判断访问次数是否超过probe_num阈值,超过则从overload_list取出一个
             if (_access_cnt >= lb_config.probe_num) {
-                _access_cnt = 0;
                 get_host_from_list(rsp, _overload_list);
+                struct in_addr saddr;
+                saddr.s_addr = htonl(rsp.host().ip());
+                printf("_access_cnt = %d, _probe_num = %d ---> choice from _overload_list ip = %s, port = %d!!!!\n", _access_cnt, lb_config.probe_num, inet_ntoa(saddr), rsp.host().port());
+                _access_cnt = 0;
             }
             else {
                 //正常从idle_list中选出一个节点
                 ++_access_cnt;
                 get_host_from_list(rsp, _idle_list);
             }
-            //选择一个idle节点
-            get_host_from_list(rsp, _idle_list);
         }
     }
+
     return lars::RET_SUCC;
 }
+
 
 //如果list中没有host信息，需要从远程的DNS Service发送GetRouteHost请求申请
 int load_balance::pull()
@@ -81,9 +104,13 @@ int load_balance::pull()
     return 0;
 }
 
+
+
 //根据dns service远程返回的结果，更新_host_map
 void load_balance::update(lars::GetRouteResponse &rsp)
 {
+    long current_time = time(NULL);
+
     //确保dns service返回的结果有host信息
     assert(rsp.host_size() != 0);
 
@@ -117,7 +144,7 @@ void load_balance::update(lars::GetRouteResponse &rsp)
    
     //2. 删除减少的host信息 从_host_map中
     //2.1 得到哪些节点需要删除
-    for (host_map_it it = _host_map.begin(); it != _host_map.end(); it++) {
+    for (auto it = _host_map.begin(); it != _host_map.end(); it++) {
         if (remote_hosts.find(it->first) == remote_hosts.end())  {
             //该key在host_map中存在，而在远端返回的结果集不存在，需要锁定被删除
             need_delete.insert(it->first);
@@ -142,116 +169,62 @@ void load_balance::update(lars::GetRouteResponse &rsp)
 
         delete hi;
     }
+
+    //更新最后update时间
+    last_update_time = current_time;
+    //重置状态为NEW
+    status = NEW;
 }
+
 
 //上报当前host主机调用情况给远端repoter service
 void load_balance::report(int ip, int port, int retcode)
 {
-    uint64_t key = ((uint64_t)ip << 32)  + port;
+    //定义当前时间
+    long current_time = time(NULL);
 
-    if (_host_map.find(key) == _host_map.end()) {
-        return;
-    }
+    // 窗口检查和超时机制 
+    if (hi->overload == false) {
+        //节点是idle状态
+        if (current_time - hi->idle_ts >= lb_config.idle_timeout) {
+            //时间窗口到达，需要对idle节点清理负载均衡数据
+            if (hi->check_window() == true)   {
+                //将此节点 设置为过载
+                struct in_addr saddr;
+                saddr.s_addr = htonl(hi->ip);
 
-    //1 计数统计
+                printf("[%d, %d] host %s:%d change to overload cause windows err rate too high, read succ %u, real err %u\n",
+                        _modid, _cmdid, inet_ntoa(saddr), hi->port, hi->rsucc, hi->rerr);
 
-    host_info *hi = _host_map[key];
-    if (retcode == lars::RET_SUCC) { // retcode == 0
-        //更新虚拟成功、真实成功次数
-        hi->vsucc ++;
-        hi->rsucc ++;
-
-        //连续成功增加
-        hi->contin_succ ++; 
-        //连续失败次数归零
-        hi->contin_err = 0;
+                //设置为overload状态
+                hi->set_overload();
+                //移出_idle_list,放入_overload_list
+                _idle_list.remove(hi);
+                _overload_list.push_back(hi);
+            }
+            else {
+                //重置窗口,回复负载默认信息
+                hi->set_idle();
+            }
+        }
     }
     else {
-        //更新虚拟失败、真实失败次数 
-        hi->verr ++;
-        hi->rerr ++;
-
-        //连续失败个数增加
-        hi->contin_err++;
-        //连续成功次数归零
-        hi->contin_succ = 0;
-    }
-
-    //2.检查节点状态
-
-    //检查idle节点是否满足overload条件
-    //或者overload节点是否满足idle条件
-     
-    //--> 如果是dile节点,则只有调用失败才有必要判断是否达到overload条件
-    if (hi->overload == false && retcode != lars::RET_SUCC) {
-
-        bool overload = false;
-
-        //idle节点，检查是否达到判定为overload的状态条件 
-        //(1).计算失败率,如果大于预设值失败率，则为overload
-        double err_rate = hi->verr * 1.0 / (hi->vsucc + hi->verr);
-
-        if (err_rate > lb_config.err_rate) {
-            overload = true;            
-        }
-
-        //(2).连续失败次数达到阈值，判定为overload
-        if( overload == false && hi->contin_err >= (uint32_t)lb_config.contin_err_limit) {
-            overload = true;
-        }
-
-        //判定overload需要做的更改流程
-        if (overload) {
-            struct in_addr saddr;
-            
-            saddr.s_addr = htonl(hi->ip);
-            printf("[%d, %d] host %s:%d change overload, succ %u err %u\n", 
-                    _modid, _cmdid, inet_ntoa(saddr), hi->port, hi->vsucc, hi->verr);
-
-            //设置hi为overload状态 
-            hi->set_overload();
-            //移出_idle_list,放入_overload_list
-            _idle_list.remove(hi);
-            _overload_list.push_back(hi);
-            return;
-        }
-
-    }
-    //--> 如果是overload节点，则只有调用成功才有必要判断是否达到idle条件
-    else if (hi->overload == true && retcode == lars::RET_SUCC) {
-        bool idle = false;
-
-        //overload节点，检查是否达到回到idle状态的条件
-        //(1).计算成功率，如果大于预设值的成功率，则为idle
-        double succ_rate = hi->vsucc * 1.0 / (hi->vsucc + hi->verr);
-
-        if (succ_rate > lb_config.succ_rate) {
-            idle = true;
-        }
-
-        //(2).连续成功次数达到阈值，判定为idle
-        if (idle == false && hi->contin_succ >= (uint32_t)lb_config.contin_succ_limit) {
-            idle = true;
-        }
-
-        //判定为idle需要做的更改流程
-        if (idle) {
+        //节点为overload状态
+        //那么处于overload的状态时间是否已经超时
+        if (current_time - hi->overload_ts >= lb_config.overload_timeout) {
             struct in_addr saddr;
             saddr.s_addr = htonl(hi->ip);
-            printf("[%d, %d] host %s:%d change idle, succ %u err %u\n", 
+            printf("[%d, %d] host %s:%d reset to idle, vsucc %u,  verr %u\n",
                     _modid, _cmdid, inet_ntoa(saddr), hi->port, hi->vsucc, hi->verr);
 
-            //设置为idle状态
             hi->set_idle();
             //移出overload_list, 放入_idle_list
             _overload_list.remove(hi);
             _idle_list.push_back(hi);
-            return;
         }
     }
-    
-    //TODO 窗口检查和超时机制 
 }
+
 
 //提交host的调用结果给远程reporter service上报结果
 void load_balance::commit()

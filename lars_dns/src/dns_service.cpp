@@ -3,6 +3,8 @@
 #include "lars.pb.h"
 #include <unordered_set>
 #include "subscribe.h"
+#include "dns_logo.h"
+
 typedef std::unordered_set<uint64_t> client_sub_mod_list;
 tcp_server *server;
 
@@ -81,8 +83,11 @@ void clear_subscribe(net_connection * conn, void *args)
 
 int main(int argc, char **argv)
 {
-    std::string ip =  "0.0.0.0";
-    short port =  5000;
+    lars_dns_logo();
+    //加载配置文件
+    config_file::setPath("conf/lars_dns.conf");
+    std::string ip = config_file::instance()->GetString("reactor", "ip", "0.0.0.0");
+    short port = config_file::instance()->GetNumber("reactor", "port", 7778);
     //创建tcp服务器
     server = new tcp_server(ip.c_str(), port);
 

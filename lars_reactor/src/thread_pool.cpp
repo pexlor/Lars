@@ -100,10 +100,10 @@ thread_pool::thread_pool(int thread_cnt)
 
 thread_queue<task_msg>* thread_pool::get_thread()
 {
+    _index++;
     if (_index == _thread_cnt) {
         _index = 0; 
     }
-    
     return _queues[_index];
 }
 

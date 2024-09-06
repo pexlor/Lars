@@ -1,5 +1,5 @@
 #include "dns_route.h"
-#include <string.h>
+
 /*
 #pragma once
 #include <pthread.h>
@@ -111,11 +111,19 @@ Route::Route()
 
 void Route::connect_db()
 {
-    std::string db_host =  "127.0.0.1";
-    short db_port =3306;
-    std::string db_user = "pexlor";
-    std::string db_passwd = "234432rT";
-    std::string db_name = "lars_dns";
+    // std::string db_host =  "127.0.0.1";
+    // short db_port =3306;
+    // std::string db_user = "pexlor";
+    // std::string db_passwd = "234432rT";
+    // std::string db_name = "lars_dns";
+
+    // --- mysql数据库配置---
+    std::string db_host = config_file::instance()->GetString("mysql", "db_host", "127.0.0.1");
+    short db_port = config_file::instance()->GetNumber("mysql", "db_port", 3306);
+    std::string db_user = config_file::instance()->GetString("mysql", "db_user", "root");
+    std::string db_passwd = config_file::instance()->GetString("mysql", "db_passwd", "aceld");
+    std::string db_name = config_file::instance()->GetString("mysql", "db_name", "lars_dns");
+
     mysql_init(&_db_conn);
 
     mysql_options(&_db_conn, MYSQL_OPT_CONNECT_TIMEOUT, "30");

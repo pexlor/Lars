@@ -7,6 +7,8 @@
 #include "dns_route.h"
 #include "lars.pb.h"
 #include "subscribe.h"
+#include <string.h>
+#include "config_file.h"
 /**
  * @param 路由服务类
  * @details 该对象会从数据库中读取对应的服务器信息，每个服务可能对应多个服务器，读取后使用route_map存储

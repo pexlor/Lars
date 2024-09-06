@@ -41,7 +41,6 @@ extern tcp_server *server;//server 外链接声明，server定义在上层服务
 SubscribeList * SubscribeList::_instance = nullptr;
 pthread_once_t SubscribeList::_once = PTHREAD_ONCE_INIT;
 
-
 SubscribeList::SubscribeList()
 {
     

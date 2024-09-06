@@ -1,5 +1,5 @@
 #include "store_report.h"
-
+#include "lars_reactor.h"
 /*class StoreReport
 {
 public:
@@ -10,6 +10,7 @@ public:
 private:
     MYSQL _db_conn;
 };*/
+
 StoreReport::StoreReport()
 {
     //1 初始化
@@ -22,11 +23,18 @@ StoreReport::StoreReport()
     char reconnect = 1;
     mysql_options(&_db_conn, MYSQL_OPT_RECONNECT, &reconnect);
 
-    std::string db_host =  "127.0.0.1";
-    short db_port =3306;
-    std::string db_user = "pexlor";
-    std::string db_passwd = "234432rT";
-    std::string db_name = "lars_dns";
+    // std::string db_host =  "127.0.0.1";
+    // short db_port =3306;
+    // std::string db_user = "pexlor";
+    // std::string db_passwd = "234432rT";
+    // std::string db_name = "lars_dns";
+
+    //2 加载配置
+    std::string db_host = config_file::instance()->GetString("mysql", "db_host", "127.0.0.1");
+    short db_port = config_file::instance()->GetNumber("mysql", "db_port", 3306);
+    std::string db_user = config_file::instance()->GetString("mysql", "db_user", "root");
+    std::string db_passwd = config_file::instance()->GetString("mysql", "db_passwd", "aceld");
+    std::string db_name = config_file::instance()->GetString("mysql", "db_name", "lars_dns");
 
     //3 链接数据库
     if ( mysql_real_connect(&_db_conn, db_host.c_str(), db_user.c_str(), db_passwd.c_str(), db_name.c_str(), db_port, NULL, 0) == NULL)  {

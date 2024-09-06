@@ -196,7 +196,6 @@ void tcp_server::do_accept()
                     task_msg task;
                     task.type = task_msg::NEW_CONN;
                     task.connfd = connfd;
-
                     //3 添加到消息队列中，让对应的thread进程event_loop处理
                     queue->send(task);
                  // =====================================
