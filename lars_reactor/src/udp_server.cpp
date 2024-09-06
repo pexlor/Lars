@@ -89,7 +89,6 @@ udp_server::udp_server(event_loop *loop, const char *ip, uint16_t port)
     printf("server on %s:%u is running...\n", ip, port);
 
     _loop->add_io_event(_sockfd, read_callback, EPOLLIN, this);
-    
 }
 
 int udp_server::send_message(const char *data, int msglen, int msgid)

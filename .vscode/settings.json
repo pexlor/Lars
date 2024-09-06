@@ -56,6 +56,7 @@
         "thread": "cpp",
         "typeinfo": "cpp",
         "iomanip": "cpp",
-        "*.inc": "cpp"
+        "*.inc": "cpp",
+        "list": "cpp"
     }
 }
