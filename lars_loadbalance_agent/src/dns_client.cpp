@@ -26,9 +26,7 @@ void new_dns_request(event_loop *loop, int fd, void *args)
         //client 发送数据
         client->send_message(requestString.c_str(), requestString.size(), lars::ID_GetRouteRequest);
     }
-
 }
-
 
 /*
  * 处理远程dns service回复的modid/cmdid对应的路由信息
@@ -56,6 +54,7 @@ static void conn_init(net_connection *conn, void *args)
     }
 }
 //========================================================
+
 void *dns_client_thread(void* args)
 {
     printf("dns client thread start\n");
@@ -67,7 +66,6 @@ void *dns_client_thread(void* args)
     
     //2 创建客户端
     tcp_client client(&loop, ip.c_str(), port, "dns client");
-    
     
     //3 将thread_queue消息回调事件，绑定到loop中
     dns_queue->set_loop(&loop);

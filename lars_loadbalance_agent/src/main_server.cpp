@@ -2,6 +2,10 @@
 #include "lars_reactor.h"
 #include "lars.pb.h"
 #include "route_lb.h"
+#include "lb_agent_logo.h"
+#include <netdb.h>
+#include <arpa/inet.h>
+#include "main_server.h"
 
 struct load_balance_config
 {
@@ -110,7 +114,7 @@ static void init_lb_agent()
 
 int main(int argc, char **argv)
 {
-    lars_lbagent_logo();
+    lars_lbagent_logo(); //打印log
 
     //1 初始化环境
     init_lb_agent();
@@ -136,7 +140,6 @@ int main(int argc, char **argv)
     }
     start_dns_client();
     
-
     while (1) {
         sleep(10);
     }

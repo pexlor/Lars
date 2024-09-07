@@ -4,6 +4,10 @@
 2. 原本链接分配问题（已解决）
    代码小问题，将任务均匀分配到给线程任务队列
 
+# 总体技术栈
+
+Protobuf Liunx网络编程 C++ STL 一致性哈希 Mysql 
+
 # 总体架构
 
 一个服务可以被抽象为命令字：modid+cmdid的组合，称为一个模块，而这个服务往往有多个服务节点，其所有服务节点的地址集合被称为这个模块下的路由，节点地址简称为节点
@@ -40,7 +44,7 @@
 消息就绪后，首先会让epoll_wait返回，并触发对应的读事件的回调函数，这里就是上面创建连接时注册的函数，这里是connection中的读函数，在该函数中会读取的所有的信息到ibuf中，然后读取消息的msgid，然后触发对应的回调函数，这里的函数都注册在server的router中。
 
 ### udp server设计
-udp也使用epoll但是当过udp server只有一个线程
+udp也使用epoll但是udp server中只有一个线程
 
 ## 性能测试
 
@@ -66,16 +70,40 @@ cpu：2核
 ## 待改进方面
 
 # DNS Service
-
+负责接收各agent对某modid、cmdid的请求并返回该modid、cmdid下的所有节点，即为agent提供获取路由服务
 ![DNS SERVICE](./res/3-Lars-dnsserver.webp "DNS SERVICE")
+## 网络模型
+DnsService服务模型采用了one loop per thread TCP服务器，主要是基于前面开发的Reactor模型：
 
-## 服务订阅与广播
+## 框架流程
+1.  服务启动时，RouteData表被加载到data_pointer指向的RouterDataMap_A中, temp_pointer指向的RouterDataMap_B为空 
+2.  服务启动后，agent发来Query for 请求某modid/cmdid，到其所在Thread Loop上，上读锁查询data_pointer指向的RouterDataMap_A，返回查询结果； 
+3.  如果此modid/cmdid不存在，则把agent ip+port+moid/cmdid发送到Backend thread loop1的队列，让其记录到ClientMap
+
+## Route的订阅与广播
 
 ### 订阅流程
+当有新的查询消息到来时，会把对应的mod和连接fd加入本链接的订阅链表和全局订阅哈希桶链表
 
 ### 广播流程
+当需要进行广播时，调用的是publish(std::vector<uint64_t> &change_mods)函数，change_mods表示的是修改的mod的集合，首先会判断这些mod是否在订阅表中，如果在就加入_push_list中（这里的_push_list的key为fd），然后推送任务给从reactor线程（这里是推送给全部线程，因为不知道要发布的fd在那个线程里面，只好丢给线程自己去判断），然后再对应的线程中，会先找到直接包含的fd（make_publish_map函数），然后查询对应的mod，依次发送消息。
+
+## 后台更新线程
+更新线程函数为check_route_changes，目前暂定一秒钟查询一次，首先会获取最新版本号，如果有更新则会重新读取数据表并更新，然后读取修改表,把修改的数据进行广播通讯，这里还有个超时时间，超时也会自动更新一次。
 
 # report service
+负责接收各agent（代理服务器）对某modid、cmdid下节点的调用状态的上报。agent会把代理的host节点的状态上报给Reporter，Reporter负责存储在Mysql数据库中。
+
+## 主框架流程
+Reporter服务模型采用了single thread TCP服务器 + 线程池处理请求
+
+●  主线程Reporter负责接收agent请求，并根据请求中携带的modid和cmdid，拼接后进行murmurHash（一致性hash），分配到某个线程的MQ上 
+●  Thread 1~N们负责处理请求：把MQ上的请求中的数据同步更新到MySQL数据表
+由于agent上报给Reporter的信息是携带时间的，且仅作为前台展示方便查看服务的过载情况，故通信仅有请求没有响应 
+
+于是Reporter服务只要可以高效读取请求即可，后端写数据库的实时性能要求不高。
+
+
 
 # LoadBalance Agent
 

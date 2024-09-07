@@ -99,9 +99,10 @@ Route::Route()
     _temp_pointer = new route_map();
 
     this->connect_db();//连接数据库
-    this->build_maps();
+    this->build_maps();//第一次查询数据
 
-    int ret = pthread_create(&_backendThread_tid,NULL,check_route_changes,NULL);
+    int ret = pthread_create(&_backendThread_tid,NULL,check_route_changes,NULL);//创建后台更新进程
+    
     if(ret == -1){
         perror("create backthread errror");
         exit(-1);

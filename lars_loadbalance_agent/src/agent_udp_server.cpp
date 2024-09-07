@@ -1,8 +1,6 @@
 #include "lars_reactor.h"
 #include "main_server.h"
 
-
-
 static void get_host_cb(const char *data, uint32_t len, int msgid, net_connection *net_conn, void *user_data)
 {
     //解析api发送的请求包

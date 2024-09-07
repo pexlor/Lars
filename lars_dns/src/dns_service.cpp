@@ -15,7 +15,6 @@ void get_route(const char *data, uint32_t len, int msgid, net_connection *net_co
 
     req.ParseFromArray(data, len);
 
-     
     //2. 得到modid 和 cmdid
     int modid, cmdid;
 
