@@ -3,12 +3,14 @@
 #include <unordered_map>
 //key: modid+cmdid    value: load_balance
 typedef std::unordered_map<uint64_t, load_balance*> route_map;
+
 /*
  * 针对多组modid/cmdid ,route_lb是管理多个load_balanace模块的
  * 目前设计有3个，和udp-server的数量一致，每个route_lb分别根据
  * modid/cmdid的值做hash，分管不同的modid/cmdid
  *
  * */
+
 class route_lb {
 public:
     //构造初始化

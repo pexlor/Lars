@@ -3,6 +3,12 @@
 #include <pthread.h>
 
 
+/*
+dns_client 用于和DnsServer通信
+有新的请求放入dns_queue中时会发送对应的请求
+返回消息后会更新route_lb
+ */
+
 //typedef void io_callback(event_loop *loop, int fd, void *args);
 //只要thread_queue有数据，loop就会触发此回调函数来处理业务
 void new_dns_request(event_loop *loop, int fd, void *args)

@@ -22,7 +22,6 @@ INC= -I./include -I$(BASE_H) -I$(LARS_REACTOR_H) -I$(MYSQL_H) -I$(PROTO_H)
 
 LIB= $(MYSQL_LIB) -L$(LARS_REACTOR_LIB) $(OTHER_LIB) 
 
-
 OBJS = $(addsuffix .o, $(basename $(wildcard $(SRC)/*.cpp)))
 OBJS += $(PROTO)/lars.pb.o
 

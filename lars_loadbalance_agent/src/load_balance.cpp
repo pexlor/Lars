@@ -190,7 +190,6 @@ void load_balance::report(int ip, int port, int retcode)
     }
 
     //1 计数统计
-
     host_info *hi = _host_map[key];
     if (retcode == lars::RET_SUCC) { // retcode == 0
         //更新虚拟成功、真实成功次数
@@ -251,7 +250,6 @@ void load_balance::report(int ip, int port, int retcode)
             _overload_list.push_back(hi);
             return;
         }
-
     }
     //--> 如果是overload节点，则只有调用成功才有必要判断是否达到idle条件
     else if (hi->overload == true && retcode == lars::RET_SUCC) {
